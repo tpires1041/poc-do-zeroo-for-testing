@@ -2,8 +2,15 @@
   "dependencies": {
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
+    "express": "^4.19.2",
     "jsdom": "^24.0.0",
     "node-telegram-bot-api": "^0.65.1",
     "rivescript": "^2.2.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
+  },
+  "scripts": {
+    "build-css": "tailwind build src/styles.css -o src/output.css"
   }
 }
