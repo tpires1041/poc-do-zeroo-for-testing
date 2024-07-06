@@ -1,57 +1,34 @@
-const axios = require('axios');
-const RiveScript = require('rivescript')
-
-let bot = new RiveScript();
-
-const brains = 'https://gist.githubusercontent.com/tpires1041/da6a583aeb2d840193b091b81ed77051/raw/a81fa4cf531b80489f1667fd07b5658274960dca/gistfile1.txt';
-
-axios.get(brains).then(response => {
-    bot.stream(response.data);
-    bot.sortReplies();
-}).catch(error => {
-    console.error(error);
-});
-
-
-function botReply(message){
-   return `${message}`;
-}
-
-function selfReply(message){
- message_container.innerHTML += `<div class="self">${message}</div>`;
- location.href = '#edge';
- 
- bot.reply("local-user", message).then(function(reply) {0
- botReply(reply);
- });
-}
-function botReady(){
- bot.sortReplies();
- botReply('Olá, tudo bem? Me chamo DoaBot e fui feito para auxiliar no processo de doação de sangue 😊🧑‍⚕️');
-}
-function botNotReady(err){
- console.log("An error has occurred.", err);
-}
-
+const { NlpManager } = require('node-nlp');
 const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs');
 
-// Substitua 'YOUR_TELEGRAM_BOT_TOKEN' pelo token do seu bot
-const token = '6972642226:AAEoBLk1WeoLB3mgyYA9QvEpFQG4XY89qzM';
+const strings = JSON.parse(fs.readFileSync('strings.json', 'utf8'));
+const answers = JSON.parse(fs.readFileSync('answers.json', 'utf8'));
 
-// Crie um bot que usa 'polling' para buscar novas atualizações
-const bott = new TelegramBot(token, { polling: true });
+const manager = new NlpManager({ languages: ['pt'] });
 
-// Responde ao comando "/echo [qualquer coisa]"
-bott.onText(/\/echo (.+)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    const resp = match[1]; // Captura o texto após o comando "/echo"
-    bott.sendMessage(chatId, resp); // Envia a resposta de volta ao chat
+
+Object.entries(strings).forEach(([key, value]) => {
+    manager.addDocument('pt', key, value);
 });
 
-// Escuta qualquer tipo de mensagem
-bott.on('message', (msg) => {
-   const chatId = msg.chat.id;
-   bot.reply("local-user", msg.text).then(function(reply) {
-       bott.sendMessage(chatId, botReply(reply));
-   });
+
+Object.entries(answers).forEach(([key, value]) => {
+    manager.addAnswer('pt', key, value);
 });
+
+(async () => {
+    await manager.train();
+    manager.save();
+
+    const bott = new TelegramBot('7331736184:AAH5KO-X0DrTT0f3APAkgSR01bKo4HLhs_k', { polling: true });
+
+    bott.onText(/\/echo (.+)/, (msg, match) => bott.sendMessage(msg.chat.id, match[1]));
+
+    bott.on('message', async (msg) => {
+        const chatId = msg.chat.id;
+        const response = await manager.process('pt', msg.text.toLowerCase());
+        const reply = response.answer || "Desculpe, não entendi sua mensagem.";
+        bott.sendMessage(chatId, reply, { parse_mode: 'HTML' });
+    });
+})();

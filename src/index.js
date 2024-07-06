@@ -1,12 +1,17 @@
-var express = require("express");
+const express = require("express");
 const app = express();
+const path = require('path');
 
-app.use(express.static(__dirname));
+app.set('views', path.resolve(__dirname, 'views'));
+app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public'))); // Corrigido aqui
 
-app.get("/", function(req, res){
-    res.sendFile(__dirname+ "/index.html");
-});
+app.get('/', (req, res) => {
+    res.render('index')
+})
 
-app.listen(8081, function(){
-    console.log("Servidor rodando na url: http://localhost:8081");
-});
+app.listen(3000, () => {
+    console.log('Está escutando a porta 3000! http://localhost:3000')
+})
+
+console.log(`Diretório de trabalho atual: ${process.cwd()}`);
