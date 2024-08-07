@@ -1,0 +1,5 @@
+1 - Envia os arquivos para o github
+2 - Acessa o servidor ssh
+3 - Acessa o repositorio do projeto
+4 - Executa o comando 'git pull origin master'
+5 - Reinicia o projeto 'docker compose down' e 'docker compose up -d'

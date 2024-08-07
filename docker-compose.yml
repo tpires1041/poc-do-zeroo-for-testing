@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  bot:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: node script.js
+    environment:
+      - NODE_ENV=development
