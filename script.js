@@ -28,7 +28,7 @@ Object.entries(answers).forEach(([key, value]) => {
     bott.on('message', async (msg) => {
         const chatId = msg.chat.id;
         const response = await manager.process('pt', msg.text.toLowerCase());
-        const reply = response.answer || "Desculpe, não entendi sua mensagem.";
+        const reply = response.answer || "Desculpe, não entendi sua mensagem. 😢\n\nPoderia repetir de uma forma diferente?";
         bott.sendMessage(chatId, reply, { parse_mode: 'HTML' });
     });
 })();
